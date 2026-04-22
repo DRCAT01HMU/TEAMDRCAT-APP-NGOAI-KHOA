@@ -41,14 +41,14 @@
     <!-- AUTH LOGIC V4 -->
     <script>
         const AUTH_API = "https://script.google.com/macros/s/AKfycbzUNA96SRsLQv7hlu83GAx6L85kEia8S52KY7nCRfWLlpJslMAT_Z-n9PMOoG_RNW6Q/exec";
-        let deviceId = localStorage.getItem('TDC_DEVICE_ID');
+        let deviceId = localStorage.getItem('TDC_DEVICE_ID_NGOAIKHOA');
         if (!deviceId) {
             deviceId = "TDC-" + Math.random().toString(36).substring(2, 6).toUpperCase() + "-" + Math.random().toString(36).substring(2, 6).toUpperCase();
-            localStorage.setItem('TDC_DEVICE_ID', deviceId);
+            localStorage.setItem('TDC_DEVICE_ID_NGOAIKHOA', deviceId);
         }
 
         function checkAuth() {
-            if (localStorage.getItem('TDC_APPROVED') === 'true') {
+            if (localStorage.getItem('TDC_APPROVED_NGOAIKHOA') === 'true') {
                 setInterval(silentVerify, 10000); 
                 return;
             }
@@ -71,7 +71,7 @@
                 .then(r => r.json())
                 .then(data => {
                     if (data.status === "approved" || data.status === "ok") {
-                        localStorage.setItem('TDC_APPROVED', 'true');
+                        localStorage.setItem('TDC_APPROVED_NGOAIKHOA', 'true');
                         lockScreen.style.opacity = '0';
                         setTimeout(() => { lockScreen.style.display = 'none'; document.body.style.overflow = 'auto'; }, 500);
                     } else {
@@ -87,10 +87,10 @@
         }
 
         function silentVerify() {
-            if(navigator.onLine && localStorage.getItem('TDC_APPROVED') === 'true') {
+            if(navigator.onLine && localStorage.getItem('TDC_APPROVED_NGOAIKHOA') === 'true') {
                 fetch(AUTH_API + "?id=" + deviceId).then(r => r.json()).then(data => {
                     if(data.status === "locked" || data.status === "error") {
-                        localStorage.setItem('TDC_APPROVED', 'false'); window.location.reload();
+                        localStorage.setItem('TDC_APPROVED_NGOAIKHOA', 'false'); window.location.reload();
                     }
                 }).catch(e => {});
             }
