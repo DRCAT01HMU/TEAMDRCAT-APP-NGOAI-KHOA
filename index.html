@@ -347,7 +347,7 @@
     </main>
 
     <!-- EBOOK LIBRARY MODAL V3 (Apple Books UI) -->
-    <div id="ebookLibrary" class="fixed inset-0 z-[60] bg-slate-50 dark:bg-slate-950 flex flex-col transition-transform duration-300 ease-out translate-y-full overflow-hidden pointer-events-none transform-gpu will-change-transform">
+    <div id="ebookLibrary" class="fixed inset-0 z-[60] bg-slate-50 dark:bg-slate-950 hidden flex-col transition-transform duration-300 ease-out translate-y-full overflow-hidden transform-gpu will-change-transform">
         
         <!-- Dynamic Cinematic Video Background (Lazy Loaded for Speed) -->
         <video id="libraryBgVideo" loop muted playsinline preload="none" class="absolute inset-0 w-full h-full object-cover pointer-events-none z-0 scale-105 opacity-100">
@@ -960,7 +960,8 @@
 
         let isLibraryVideoLoaded = false;
         function openEbookLibrary() {
-            ebookLibraryModal.classList.remove('pointer-events-none');
+            ebookLibraryModal.classList.remove('hidden');
+            ebookLibraryModal.classList.add('flex');
             
             // Force reflow for smooth transition
             void ebookLibraryModal.offsetWidth;
@@ -985,14 +986,26 @@
                         vid.load();
                         vid.play().catch(e => console.log('Autoplay block', e));
                         isLibraryVideoLoaded = true;
+                    } else if (vid && isLibraryVideoLoaded) {
+                        vid.play().catch(e => console.log('Play block', e));
                     }
                 }, 400);
+            } else {
+                const vid = document.getElementById('libraryBgVideo');
+                if (vid) vid.play().catch(e => console.log('Play block', e));
             }
         }
 
         function closeEbookLibrary() {
             ebookLibraryModal.classList.add('translate-y-full');
-            ebookLibraryModal.classList.add('pointer-events-none');
+            
+            const vid = document.getElementById('libraryBgVideo');
+            if (vid) vid.pause();
+
+            setTimeout(() => {
+                ebookLibraryModal.classList.remove('flex');
+                ebookLibraryModal.classList.add('hidden');
+            }, 300);
         }
 
         function renderEbooks() {
