@@ -1107,8 +1107,8 @@
         }
 
         document.getElementById('btnReadNow').addEventListener('click', () => {
-            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-            const isMobile = window.innerWidth < 768 || isIOS;
+            const isIOS = (/iPad|iPhone|iPod/.test(navigator.userAgent)) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+            const isMobile = window.innerWidth < 1024 || isIOS;
             
             if (typeof gtag === 'function') {
                 try {
