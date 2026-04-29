@@ -960,14 +960,15 @@
 
         let isLibraryVideoLoaded = false;
         function openEbookLibrary() {
+            document.body.style.overflow = 'hidden'; 
             ebookLibraryModal.classList.remove('pointer-events-none');
             
-            requestAnimationFrame(() => {
-                ebookLibraryModal.classList.remove('translate-y-full');
-            });
+            // Force reflow for smooth transition
+            void ebookLibraryModal.offsetWidth;
+            
+            ebookLibraryModal.classList.remove('translate-y-full');
             
             setTimeout(() => {
-                document.body.style.overflow = 'hidden'; 
                 if (ebookListEl.children.length === 0) {
                     renderEbooks();
                 } else if (ebookSearchInput.value !== '') {
@@ -1084,10 +1085,11 @@
             sheet.classList.remove('hidden');
             sheet.classList.add('flex');
             
-            requestAnimationFrame(() => {
-                sheet.classList.remove('opacity-0');
-                setTimeout(() => { panel.classList.remove('translate-y-full'); }, 10);
-            });
+            // Force reflow for smooth transition
+            void sheet.offsetWidth;
+            
+            sheet.classList.remove('opacity-0');
+            setTimeout(() => { panel.classList.remove('translate-y-full'); }, 10);
         }
 
         function closeBookDetail() {
@@ -1124,7 +1126,7 @@
                 closeBookDetail(); 
             } else {
                 closeBookDetail();
-                setTimeout(() => { openPdfViewer(activePdfUrl, activePdfTitle); }, 300);
+                setTimeout(() => { openPdfViewer(activePdfUrl, activePdfTitle); }, 400);
             }
         });
 
@@ -1135,7 +1137,6 @@
             document.getElementById('pdfTitle').innerText = title;
             document.getElementById('pdfExternalLink').href = url;
             
-            iframe.src = "about:blank"; 
             if(loader) { 
                 loader.style.display = 'flex'; 
                 loader.style.opacity = '1'; 
@@ -1144,16 +1145,16 @@
             pdfViewerModal.classList.remove('hidden');
             pdfViewerModal.classList.add('flex');
             
-            requestAnimationFrame(() => {
-                requestAnimationFrame(() => {
-                    pdfViewerModal.classList.remove('opacity-0', 'translate-y-full');
-                });
-            });
+            // Force reflow
+            void pdfViewerModal.offsetWidth;
             
-            setTimeout(() => { iframe.src = url; }, 300);
+            pdfViewerModal.classList.remove('opacity-0', 'translate-y-full');
+            
+            // Load iframe after animation finishes
+            setTimeout(() => { iframe.src = url; }, 350);
             
             iframe.onload = () => {
-                if(iframe.src !== "about:blank" && iframe.src !== window.location.href && loader) {
+                if(iframe.src !== "" && iframe.src !== "about:blank" && iframe.src !== window.location.href && loader) {
                     loader.style.opacity = '0';
                     setTimeout(() => { loader.style.display = 'none'; }, 300);
                 }
@@ -1162,8 +1163,10 @@
 
         function closePdfViewer() {
             pdfViewerModal.classList.add('opacity-0', 'translate-y-full');
-            document.getElementById('pdfIframe').src = "about:blank";
+            
+            // Defer iframe unloading until animation completes
             setTimeout(() => {
+                document.getElementById('pdfIframe').src = "about:blank";
                 pdfViewerModal.classList.remove('flex');
                 pdfViewerModal.classList.add('hidden');
             }, 300);
