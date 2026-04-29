@@ -357,7 +357,7 @@
         <div class="absolute inset-0 bg-white/20 dark:bg-black/40 z-0 pointer-events-none transition-colors duration-500"></div>
 
         <!-- Header Controls -->
-        <div class="relative z-10 flex-none bg-white/95 dark:bg-slate-900/95 px-5 pb-3.5 border-b border-black/5 dark:border-white/5 shadow-sm transform-gpu min-h-[60px]" style="padding-top: calc(env(safe-area-inset-top, 0px) + 0.875rem);">
+        <div class="relative z-10 flex-none bg-white/95 dark:bg-slate-900/95 px-5 pb-3.5 border-b border-black/5 dark:border-white/5 shadow-sm min-h-[60px]" style="padding-top: calc(env(safe-area-inset-top, 0px) + 0.875rem);">
             <div class="relative w-full flex items-center justify-center">
                 <h2 class="font-heading font-extrabold text-[19px] uppercase tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-slate-800 via-slate-600 to-slate-800 dark:from-white dark:via-blue-200 dark:to-white text-center leading-tight px-8 drop-shadow-sm">
                     NGOẠI KHOA <span class="bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-indigo-500 dark:from-blue-400 dark:to-indigo-300 font-black relative">Y HÀ NỘI</span>
@@ -369,15 +369,15 @@
         </div>
 
         <!-- Search Bar -->
-        <div class="relative z-10 flex-none px-4 py-3 bg-white border-b border-black/5 dark:bg-slate-900 dark:border-white/5 transform-gpu shadow-sm">
+        <div class="relative z-10 flex-none px-4 py-3 bg-white border-b border-black/5 dark:bg-slate-900 dark:border-white/5 shadow-sm">
             <div class="relative group">
                 <i class="fas fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 group-focus-within:text-blue-500 transition-colors z-20"></i>
-                <input type="text" id="ebookSearchInput" placeholder="Tìm tên sách, bài học..." class="w-full relative z-10 bg-slate-100 dark:bg-slate-800 border border-transparent focus:border-blue-300/50 dark:focus:border-blue-500/50 text-slate-800 dark:text-white rounded-xl py-2.5 pl-10 pr-4 focus:outline-none focus:ring-4 focus:ring-blue-500/10 transition-all font-medium placeholder-slate-400 dark:placeholder-slate-500 shadow-inner transform-gpu">
+                <input type="text" id="ebookSearchInput" placeholder="Tìm tên sách, bài học..." class="w-full relative z-10 bg-slate-100 dark:bg-slate-800 border border-transparent focus:border-blue-300/50 dark:focus:border-blue-500/50 text-slate-800 dark:text-white rounded-xl py-2.5 pl-10 pr-4 focus:outline-none focus:ring-4 focus:ring-blue-500/10 transition-all font-medium placeholder-slate-400 dark:placeholder-slate-500 shadow-inner">
             </div>
         </div>
 
         <!-- Bookshelf Categories (Horizontal Scroll) -->
-        <div class="relative z-10 flex-1 overflow-y-auto py-6 pb-24 px-4 overflow-hidden scroll-smooth transform-gpu" style="-webkit-overflow-scrolling: touch;">
+        <div class="relative z-10 flex-1 overflow-y-auto py-6 pb-24 px-4 overflow-hidden scroll-smooth" style="-webkit-overflow-scrolling: touch;">
             <div class="flex flex-col gap-10 max-w-5xl mx-auto" id="ebookList">
                 <!-- JS Rendered Horizontal Lists -->
             </div>
@@ -960,7 +960,6 @@
 
         let isLibraryVideoLoaded = false;
         function openEbookLibrary() {
-            document.body.style.overflow = 'hidden'; 
             ebookLibraryModal.classList.remove('pointer-events-none');
             
             // Force reflow for smooth transition
@@ -994,7 +993,6 @@
         function closeEbookLibrary() {
             ebookLibraryModal.classList.add('translate-y-full');
             ebookLibraryModal.classList.add('pointer-events-none');
-            document.body.style.overflow = 'auto'; 
         }
 
         function renderEbooks() {
