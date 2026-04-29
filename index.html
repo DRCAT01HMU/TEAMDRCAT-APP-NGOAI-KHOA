@@ -1118,8 +1118,7 @@
         }
 
         document.getElementById('btnReadNow').addEventListener('click', () => {
-            const isIOS = (/iPad|iPhone|iPod/.test(navigator.userAgent)) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-            const isMobile = window.innerWidth < 1024 || isIOS;
+            const isPhone = window.innerWidth < 768;
             
             if (typeof gtag === 'function') {
                 try {
@@ -1132,7 +1131,7 @@
                 } catch(e) {}
             }
 
-            if (isMobile) {
+            if (isPhone) {
                 window.open(activePdfUrl, '_blank');
                 closeBookDetail(); 
             } else {
