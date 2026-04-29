@@ -51,6 +51,42 @@
             -webkit-mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
             mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
         }
+
+/* Sleek scrollbar for horizontal lists */
+        .custom-scrollbar::-webkit-scrollbar { height: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(148, 163, 184, 0.4); border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(148, 163, 184, 0.8); }
+        .dark .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(71, 85, 105, 0.4); }
+        .dark .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(71, 85, 105, 0.8); }
+
+        /* Folder Style Additions */
+        .pt-safe { padding-top: env(safe-area-inset-top); }
+        .folder-mask {
+            -webkit-mask-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 130 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M 0 12 A 12 12 0 0 1 12 0 L 55 0 A 8 8 0 0 1 63 8 L 63 16 A 6 6 0 0 0 69 22 L 118 22 A 12 12 0 0 1 130 34 L 130 168 A 12 12 0 0 1 118 180 L 12 180 A 12 12 0 0 1 0 168 Z' fill='black'/%3E%3C/svg%3E");
+            -webkit-mask-size: 100% 100%;
+            -webkit-mask-repeat: no-repeat;
+            mask-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 130 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M 0 12 A 12 12 0 0 1 12 0 L 55 0 A 8 8 0 0 1 63 8 L 63 16 A 6 6 0 0 0 69 22 L 118 22 A 12 12 0 0 1 130 34 L 130 168 A 12 12 0 0 1 118 180 L 12 180 A 12 12 0 0 1 0 168 Z' fill='black'/%3E%3C/svg%3E");
+            mask-size: 100% 100%;
+            mask-repeat: no-repeat;
+        }
+        .folder-shadow {
+            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.08));
+        }
+        .dark .folder-shadow {
+            filter: drop-shadow(0 5px 12px rgba(0,0,0,0.4));
+        }
+        @media (hover: none) {
+            .folder-shadow { filter: none !important; }
+        }
+        .folder-card-wrapper {
+            perspective: 1000px;
+        }
+        .ebook-gradient-1 { background: linear-gradient(135deg, rgba(30,58,138,0.85), rgba(147,197,253,0.25)); }
+        .ebook-gradient-2 { background: linear-gradient(135deg, rgba(15,118,110,0.85), rgba(153,246,228,0.25)); }
+        .ebook-gradient-3 { background: linear-gradient(135deg, rgba(76,29,149,0.85), rgba(196,181,253,0.25)); }
+        .ebook-gradient-4 { background: linear-gradient(135deg, rgba(3,105,161,0.85), rgba(186,230,253,0.25)); }
+        .ebook-gradient-5 { background: linear-gradient(135deg, rgba(49,46,129,0.85), rgba(165,180,252,0.25)); }
 </style>
     <script>
         tailwind.config = { darkMode: 'class', theme: { extend: { colors: { primary: '#0f172a' } } } }
@@ -264,6 +300,20 @@
                     <input type="text" id="searchInput" placeholder="Tìm kiếm từ khóa..." 
                            class="w-full bg-white/10 backdrop-blur-xl text-white placeholder-white/50 border border-white/20 rounded-2xl py-4 pl-14 pr-4 focus:outline-none focus:ring-2 focus:ring-blue-300/50 transition-all font-medium shadow-[0_8px_32px_rgba(0,0,0,0.1)] relative z-10">
                 </div>
+            
+                <!-- Library Action Button -->
+                <button onclick="openEbookLibrary()" class="flex items-center justify-between w-full max-w-md bg-white/20 hover:bg-white/30 border border-white/30 rounded-2xl p-4 transition-all duration-300 shadow-md group relative z-10 cursor-pointer mt-4 transform-gpu active:scale-[0.98]">
+                    <div class="flex items-center gap-3">
+                        <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-500 flex items-center justify-center shadow-inner border border-white/20">
+                            <i class="fas fa-book-open text-white"></i>
+                        </div>
+                        <div class="text-left">
+                            <h3 class="text-white font-bold text-sm tracking-wide">GIÁO TRÌNH NGOẠI KHOA Y HÀ NỘI</h3>
+                        </div>
+                    </div>
+                    <i class="fas fa-chevron-right text-white/50 group-hover:text-white group-hover:translate-x-1 transition-all"></i>
+                </button>
+
             </div>
             
             <!-- Category Pills Glass -->
@@ -295,6 +345,128 @@
             <p class="font-medium text-slate-500">Chưa tìm thấy dữ liệu phù hợp.</p>
         </div>
     </main>
+
+    <!-- EBOOK LIBRARY MODAL V3 (Apple Books UI) -->
+    <div id="ebookLibrary" class="fixed inset-0 z-[60] bg-slate-50 dark:bg-slate-950 flex flex-col transition-transform duration-300 ease-out translate-y-full overflow-hidden pointer-events-none transform-gpu will-change-transform">
+        
+        <!-- Dynamic Cinematic Video Background (Lazy Loaded for Speed) -->
+        <video id="libraryBgVideo" loop muted playsinline preload="none" class="absolute inset-0 w-full h-full object-cover pointer-events-none z-0 scale-105 opacity-100">
+            <source id="libraryBgSource" data-src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260314_131748_f2ca2a28-fed7-44c8-b9a9-bd9acdd5ec31.mp4" type="video/mp4">
+        </video>
+        <!-- Frosted Glass Overlay adapting to Light/Dark mode -->
+        <div class="absolute inset-0 bg-white/20 dark:bg-black/40 z-0 pointer-events-none transition-colors duration-500"></div>
+
+        <!-- Header Controls -->
+        <div class="relative z-10 flex-none bg-white/95 dark:bg-slate-900/95 px-5 pb-3.5 border-b border-black/5 dark:border-white/5 shadow-sm transform-gpu min-h-[60px]" style="padding-top: calc(env(safe-area-inset-top, 0px) + 0.875rem);">
+            <div class="relative w-full flex items-center justify-center">
+                <h2 class="font-heading font-extrabold text-[19px] uppercase tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-slate-800 via-slate-600 to-slate-800 dark:from-white dark:via-blue-200 dark:to-white text-center leading-tight px-8 drop-shadow-sm">
+                    NGOẠI KHOA <span class="bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-indigo-500 dark:from-blue-400 dark:to-indigo-300 font-black relative">Y HÀ NỘI</span>
+                </h2>
+                <button onclick="closeEbookLibrary()" class="absolute right-0 w-8 h-8 flex-shrink-0 rounded-full bg-slate-200/80 dark:bg-slate-800/80 flex items-center justify-center text-slate-600 dark:text-slate-300 hover:bg-blue-500 hover:text-white transition-colors duration-300 z-10">
+                    <i class="fas fa-times text-sm"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Search Bar -->
+        <div class="relative z-10 flex-none px-4 py-3 bg-white border-b border-black/5 dark:bg-slate-900 dark:border-white/5 transform-gpu shadow-sm">
+            <div class="relative group">
+                <i class="fas fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 group-focus-within:text-blue-500 transition-colors z-20"></i>
+                <input type="text" id="ebookSearchInput" placeholder="Tìm tên sách, bài học..." class="w-full relative z-10 bg-slate-100 dark:bg-slate-800 border border-transparent focus:border-blue-300/50 dark:focus:border-blue-500/50 text-slate-800 dark:text-white rounded-xl py-2.5 pl-10 pr-4 focus:outline-none focus:ring-4 focus:ring-blue-500/10 transition-all font-medium placeholder-slate-400 dark:placeholder-slate-500 shadow-inner transform-gpu">
+            </div>
+        </div>
+
+        <!-- Bookshelf Categories (Horizontal Scroll) -->
+        <div class="relative z-10 flex-1 overflow-y-auto py-6 pb-24 px-4 overflow-hidden scroll-smooth transform-gpu" style="-webkit-overflow-scrolling: touch;">
+            <div class="flex flex-col gap-10 max-w-5xl mx-auto" id="ebookList">
+                <!-- JS Rendered Horizontal Lists -->
+            </div>
+        </div>
+    </div>
+
+    <!-- BOOK DETAIL BOTTOM SHEET MODAL -->
+    <div id="bookDetailSheet" class="fixed inset-0 z-[70] bg-slate-900/40 dark:bg-black/60 backdrop-blur-sm hidden flex-col justify-end transition-all duration-300 opacity-0">
+        <!-- Close overlay trigger -->
+        <div class="flex-1 w-full cursor-pointer" onclick="closeBookDetail()"></div>
+        
+        <!-- The Sheet -->
+        <div id="bookDetailPanel" class="w-full bg-white dark:bg-slate-900 rounded-t-3xl shadow-[0_-10px_40px_rgba(0,0,0,0.2)] transform translate-y-full transition-transform duration-500 max-h-[85vh] flex flex-col pointer-events-auto border-t border-slate-200 dark:border-slate-800">
+            <!-- Handle -->
+            <div class="w-full flex justify-center pt-3 pb-2 cursor-pointer" onclick="closeBookDetail()">
+                <div class="w-12 h-1.5 bg-slate-300 dark:bg-slate-700 rounded-full"></div>
+            </div>
+            
+            <div class="px-6 pb-8 pt-2 overflow-y-auto custom-scrollbar">
+                <div class="flex gap-5 mb-6">
+                    <!-- Dynamic Folder Preview -->
+                    <div class="relative flex-shrink-0 w-[110px] sm:w-[130px] aspect-[1/1.4] folder-shadow">
+                        <div id="bdCover" class="absolute inset-0 folder-mask bg-white/10 dark:bg-black/20 backdrop-blur-md border border-white/20 shadow-[inset_0_1px_1px_rgba(255,255,255,0.4)] flex flex-col shadow-[inset_0_1px_1px_rgba(255,255,255,0.4)]">
+                            <div id="bdCoverBg" class="h-[60%] w-full bg-blue-500 relative flex flex-col p-2 pt-6">
+                                <div id="bdPattern" class="absolute inset-0 opacity-15 pointer-events-none"></div>
+                                <div class="flex-1 flex items-center justify-center z-10">
+                                    <h4 id="bdCoverTitle" class="text-white font-heading font-black text-sm leading-tight text-center text-balance" style="text-shadow: 0 2px 4px rgba(0,0,0,0.6); px-1">Title</h4>
+                                </div>
+                            </div>
+                            <div class="h-[40%] w-full bg-transparent p-2.5 flex flex-col justify-end border-t border-black/5 dark:border-white/5">
+                                <span class="text-[9px] text-slate-400 dark:text-slate-500 font-bold mb-0.5 tracking-wider">Y HÀ NỘI</span>
+                                <div class="flex justify-between items-center text-[11px] text-slate-700 dark:text-slate-200 font-bold">
+                                    <span id="bdCoverChap" class="truncate pr-1">Category</span>
+                                    <i class="fas fa-chevron-down text-[8px] text-slate-400"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex-1 flex flex-col justify-center">
+                        <span id="bdCategory" class="text-[10px] font-black text-blue-500 uppercase tracking-widest bg-blue-50 dark:bg-blue-900/30 px-2 py-0.5 rounded w-max mb-2">CATEGORY</span>
+                        <h2 id="bdTitle" class="font-heading font-black text-xl text-slate-800 dark:text-white leading-tight mb-2">Tên sách</h2>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 font-medium mb-3">Tài liệu lưu hành nội bộ<br>Hệ thống: TEAMDRCAT</p>
+                        <div class="flex items-center gap-1 text-amber-500 text-xs">
+                            <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star-half-alt"></i>
+                            <span class="text-slate-400 ml-1">(4.8)</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <button id="btnReadNow" class="w-full relative overflow-hidden group bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white font-bold text-lg py-4 px-6 rounded-2xl shadow-[0_10px_20px_rgba(244,63,94,0.3)] transition-all flex items-center justify-center gap-3">
+                    <div class="absolute inset-0 w-1/4 bg-white/20 -skew-x-12 -translate-x-full group-hover:animate-[shimmer_1.5s_infinite]"></div>
+                    <div class="absolute inset-0 bg-blue-400/20 animate-pulse"></div>
+                    <i class="fas fa-book-reader relative z-10 text-xl group-hover:scale-110 transition-transform"></i> <span class="tracking-wide relative z-10">BẮT ĐẦU ĐỌC</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- EBOOK PDF VIEWER MODAL -->
+    <div id="pdfViewer" class="fixed inset-0 z-[80] bg-black/40 hidden flex-col transition-all duration-300 translate-y-full opacity-0 transform-gpu will-change-transform">
+        <div class="flex-none bg-black/90 px-4 pb-4 border-b border-white/10 shadow-sm z-20 flex items-center justify-between" style="padding-top: calc(env(safe-area-inset-top, 0px) + 1rem);">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-full bg-blue-500/80 flex items-center justify-center shadow-lg border border-blue-400/50">
+                    <i class="fas fa-book-medical text-white text-xs"></i>
+                </div>
+                <h3 id="pdfTitle" class="text-white font-bold text-sm tracking-wide line-clamp-1 ">Giáo trình</h3>
+            </div>
+            <div class="flex items-center gap-2">
+                <a id="pdfExternalLink" href="#" target="_blank" class="w-9 h-9 rounded-full bg-blue-500/20 hover:bg-blue-500/40 text-blue-300 flex items-center justify-center transition-colors border border-blue-500/30 shadow-sm">
+                    <i class="fas fa-external-link-alt text-xs"></i>
+                </a>
+                <button onclick="closePdfViewer()" class="px-4 py-2 bg-white/20 hover:bg-white/30 text-white rounded-full text-xs font-bold transition-colors cursor-pointer border border-white/10 shadow-sm uppercase tracking-wider">
+                    Xong
+                </button>
+            </div>
+        </div>
+        <div class="flex-1 w-full bg-transparent relative max-w-5xl mx-auto border-x border-white/10 z-10 overflow-hidden">
+            <div id="pdfLoader" class="absolute inset-0 flex flex-col items-center justify-center bg-black/90 text-white z-0 transition-opacity duration-300">
+                <i class="fas fa-circle-notch fa-spin text-4xl text-blue-500 mb-4 drop-shadow-lg"></i>
+                <p class="font-medium animate-pulse text-slate-300 text-sm mb-2">Đang nạp file từ Hệ thống Drive...</p>
+                <p class="text-[10px] text-slate-400 max-w-xs text-center uppercase tracking-widest leading-relaxed">Nhấn nút [ <i class="fas fa-external-link-alt mx-1"></i> ] góc phải phần Tiêu đề để mở trên thẻ mới nếu bị chặn quyền chia sẻ.</p>
+            </div>
+            <iframe id="pdfIframe" src="" class="w-full h-full border-0 relative z-10 bg-white shadow-inner" allowfullscreen></iframe>
+        </div>
+    </div>
+
+
+    
 
     <script>
         const ALL_CASES = [
@@ -482,6 +654,572 @@
         document.addEventListener('DOMContentLoaded', updateNetworkStatus);
 
     </script>
+
+    
+<script>
+/* -------------------------------------
+           EBOOK LIBRARY LOGIC (APPLE BOOKS)
+        ----------------------------------------*/
+        const EBOOK_CHAPTERS = [
+    {
+        "chapterName": "THẦN KINH - SỌ NÃO",
+        "gradient": "ebook-gradient-1",
+        "books": [
+            {
+                "title": "CHẤN THƯƠNG SỌ NÃO",
+                "url": "https://drive.google.com/file/d/1Y2sYfWmUXMmvS9z3MOvtqvUC-28ugOHM/preview"
+            },
+            {
+                "title": "VẾT THƯƠNG SỌ NÃO",
+                "url": "https://drive.google.com/file/d/1h8h_uE-RFU2Ik16rzZ-v1_JL14dqFb2j/preview"
+            },
+            {
+                "title": "U NÃO",
+                "url": "https://drive.google.com/file/d/13eem5EunHvnNR9R4yss1AhGGKsmgze5f/preview"
+            },
+            {
+                "title": "CHẢY MÁU DƯỚI NHỆN DO PHÌNH ĐỘNG MẠCH NÃO",
+                "url": "https://drive.google.com/file/d/1njnjD9s15JKPKPWfXzlxQnQKft0LZo61/preview"
+            },
+            {
+                "title": "U TỦY",
+                "url": "https://drive.google.com/file/d/1DLwNlGPw1u0dj-JljMB6sxvFNCL818t8/preview"
+            }
+        ]
+    },
+    {
+        "chapterName": "CHẤN THƯƠNG CHỈNH HÌNH",
+        "gradient": "ebook-gradient-2",
+        "books": [
+            {
+                "title": "GÃY POUTEAU COLLES",
+                "url": "https://drive.google.com/file/d/1agCesgYn83nReBxDb_T0WF718Ai3jt55/preview"
+            },
+            {
+                "title": "GÃY THÂN XƯƠNG CÁNH TAY",
+                "url": "https://drive.google.com/file/d/1ybOSXCBeHrOxV7fCeuaLjs-Nes1HAe2U/preview"
+            },
+            {
+                "title": "GÃY HAI XƯƠNG CẲNG TAY",
+                "url": "https://drive.google.com/file/d/1ns4WbkIo0_ZwEoiACcWIqyv86CwMf2V5/preview"
+            },
+            {
+                "title": "GÃY CỔ XƯƠNG ĐÙI",
+                "url": "https://drive.google.com/file/d/10gTFIakJe5N1pXo8rMfKOx75W5op5JG9/preview"
+            },
+            {
+                "title": "GÃY THÂN XƯƠNG ĐÙI",
+                "url": "https://drive.google.com/file/d/1KdFOekXE3puWiseyPlGzXGlv6sUTiJyl/preview"
+            },
+            {
+                "title": "GÃY HAI XƯƠNG CẲNG CHÂN",
+                "url": "https://drive.google.com/file/d/1zUwr-5w20ebsOfFNEbCpAmFazuHPB0c0/preview"
+            },
+            {
+                "title": "TRẬT KHỚP KHUỶU",
+                "url": "https://drive.google.com/file/d/1l-5qFejwoPYGCAdarzn7nZVEfm9pwrk1/preview"
+            },
+            {
+                "title": "TRẬT KHỚP VAI",
+                "url": "https://drive.google.com/file/d/1PTOp0remB1GFhaaZD3GrVZr4MTeVCJqp/preview"
+            },
+            {
+                "title": "TRẬT KHỚP HÁNG",
+                "url": "https://drive.google.com/file/d/1V1OiHxyHK-q2lCuzKNiPUmh7iV_Uzb0z/preview"
+            },
+            {
+                "title": "TRẬT KHỚP GỐI",
+                "url": "https://drive.google.com/file/d/1xV4cWf86e8tSqJe9Ln-9mvCE596Y5XXb/preview"
+            },
+            {
+                "title": "CHẤN THƯƠNG NGỰC KÍN VÀ CÁC THỂ BỆNH THƯỜNG GẶP",
+                "url": "https://drive.google.com/file/d/1Q0p19SffGJ5_0Lj3S2dHRibLCZal-VV9/preview"
+            },
+            {
+                "title": "VẾT THƯƠNG NGỰC HỞ",
+                "url": "https://drive.google.com/file/d/1wIAXc90AL82TcTm3Vt7Sp3KYxsBIZ90J/preview"
+            },
+            {
+                "title": "CHẤN THƯƠNG VẾT THƯƠNG ĐỘNG MẠCH CHI",
+                "url": "https://drive.google.com/file/d/1jl3Oiq1_4MlzzHDJ9brxcRiUg32nDhi_/preview"
+            },
+            {
+                "title": "CHẤN THƯƠNG CỘT SỐNG",
+                "url": "https://drive.google.com/file/d/18gEEFBkfNaMPqSi0tLGmaW8kdf51achE/preview"
+            },
+            {
+                "title": "GÃY XƯƠNG HỞ",
+                "url": "https://drive.google.com/file/d/184YHKOtjFx4RZRxYFGBnBTXnLPXpacDJ/preview"
+            },
+            {
+                "title": "GÃY XƯƠNG CHẬU GÃY Ổ CỐI",
+                "url": "https://drive.google.com/file/d/1k2b6VFQSi3y9oFT__CcmypxDO992xVWf/preview"
+            },
+            {
+                "title": "VẾT THƯƠNG KHỚP",
+                "url": "https://drive.google.com/file/d/1LN5JenEuuOs_JiyXWhTOajBbYHkb4st-/preview"
+            },
+            {
+                "title": "VẾT THƯƠNG PHẦN MỀM",
+                "url": "https://drive.google.com/file/d/1HV6E3pzS9L7mReR4XeTj35MpcdBxPZKx/preview"
+            },
+            {
+                "title": "HOẠI THƯ SINH HƠI",
+                "url": "https://drive.google.com/file/d/17u3DtktzbO9tT5zd8yrQXjaSt0Ao5BZr/preview"
+            },
+            {
+                "title": "VẾT THƯƠNG BÀN TAY",
+                "url": "https://drive.google.com/file/d/1hy2FD8KiEdD5ZeLEZY-G1LiiPDv03MES/preview"
+            },
+            {
+                "title": "NHIỄM TRÙNG BÀN TAY",
+                "url": "https://drive.google.com/file/d/1twZHDOdFLPF4dWyXNuRyf8vxq9zvf3Mm/preview"
+            },
+            {
+                "title": "HỘI CHỨNG CHÈN ÉP KHOANG",
+                "url": "https://drive.google.com/file/d/1Ec1SsH50NnRV8wcl2qj1Y5eN7IVmbzIV/preview"
+            },
+            {
+                "title": "ĐẠI CƯƠNG VỀ U XƯƠNG",
+                "url": "https://drive.google.com/file/d/1_yHCnEyA-687lVtB4aMpcSCBoJLJmkIQ/preview"
+            },
+            {
+                "title": "ĐẠI CƯƠNG VỀ BỎNG",
+                "url": "https://drive.google.com/file/d/1FobhNt7Rxww_p9FVeIKrDJdfq1RSuBcV/preview"
+            },
+            {
+                "title": "ĐẠI CƯƠNG BỆNH LÝ ĐỘNG MẠCH CHỦ",
+                "url": "https://drive.google.com/file/d/1QjlBRMvs8Z5pyLUuZxuJ1GXS_FDfAVj4/preview"
+            },
+            {
+                "title": "ĐẠI CƯƠNG CHẨN ĐOÁN VÀ ĐIỀU TRỊ CÁC BỆNH THIẾU MÁU CHI",
+                "url": "https://drive.google.com/file/d/1o9t7UCq6vfTbW3gZ4UkYblM0Zc_InYrH/preview"
+            }
+        ]
+    },
+    {
+        "chapterName": "TIÊU HÓA",
+        "gradient": "ebook-gradient-3",
+        "books": [
+            {
+                "title": "VIÊM RUỘT THỪA",
+                "url": "https://drive.google.com/file/d/120Vo4qfIQpRO6JKDuCHXt-KWU7UCxA-i/preview"
+            },
+            {
+                "title": "THỦNG Ổ LOÉT DẠ DÀY TÁ TRÀNG",
+                "url": "https://drive.google.com/file/d/1h-L_ji8N3Vmc5R5qsNbNcst6Nk3slhWk/preview"
+            },
+            {
+                "title": "CHẤN THƯƠNG BỤNG",
+                "url": "https://drive.google.com/file/d/1hLuGLYADZSLwav2fZmR5QTf1niQZzZjQ/preview"
+            },
+            {
+                "title": "VẾT THƯƠNG BỤNG",
+                "url": "https://drive.google.com/file/d/1IbXbu6pmCaOdgOXd33inzq9G3JX3NyOH/preview"
+            },
+            {
+                "title": "VIÊM TỤY CẤP",
+                "url": "https://drive.google.com/file/d/1jM_Q20ceadG-u3g0NLXnEksxV6c_GQJk/preview"
+            },
+            {
+                "title": "HỘI CHỨNG TẮC RUỘT",
+                "url": "https://drive.google.com/file/d/198Jf7zo6lioRuPR4paD19Mi7n7L3aPGD/preview"
+            },
+            {
+                "title": "VIÊM PHÚC MẠC VÀ CÁC Ổ ÁP XE TRONG Ổ BỤNG",
+                "url": "https://drive.google.com/file/d/1uqH3S0r6Z2fz2uj_sCL1Xg8XBVbdqsk4/preview"
+            },
+            {
+                "title": "UNG THƯ DẠ DÀY",
+                "url": "https://drive.google.com/file/d/1_CT8QQjfVgoSJYsloYZq4X6t0ejCowqO/preview"
+            },
+            {
+                "title": "UNG THƯ ĐẠI TRÀNG",
+                "url": "https://drive.google.com/file/d/1Fi0KWrnVxSKPEAj-BhEYe2XALoik5Q_4/preview"
+            },
+            {
+                "title": "SỎI ĐƯỜNG MẬT CHÍNH",
+                "url": "https://drive.google.com/file/d/1moWHaOgMWvs7KjZpjX53HQojOt8Tly2f/preview"
+            },
+            {
+                "title": "HẸP MÔN VỊ",
+                "url": "https://drive.google.com/file/d/11InJm3X1uBP7SL8poV12NzAWGbr6942e/preview"
+            },
+            {
+                "title": "CHẢY MÁU ĐƯỜNG TIÊU HÓA",
+                "url": "https://drive.google.com/file/d/16ozkUN_hv1HgAmDpjyk5i7dWCAHp1N6H/preview"
+            },
+            {
+                "title": "HỘI CHỨNG CHẢY MÁU TRONG Ổ BỤNG",
+                "url": "https://drive.google.com/file/d/1JEvqMIOJrPE-VftGVayHF5HviqJ4Xvib/preview"
+            },
+            {
+                "title": "BỆNH PHÌNH GIÃN THỰC QUẢN",
+                "url": "https://drive.google.com/file/d/1BMc8xw5fkmrNiyTKyWgKrk1xT3QDSYHX/preview"
+            },
+            {
+                "title": "UNG THƯ THỰC QUẢN",
+                "url": "https://drive.google.com/file/d/1bLK3guG8fyiwgJoBsmCJJk5lBEUMHn9_/preview"
+            },
+            {
+                "title": "UNG THƯ TRỰC TRÀNG",
+                "url": "https://drive.google.com/file/d/1PPoAKXd145lnRJYtHF9YRSE_-E4yYZxF/preview"
+            },
+            {
+                "title": "THOÁT VỊ BẸN ĐÙI",
+                "url": "https://drive.google.com/file/d/1rCA213QqAo49ikkXOPKEx_guRvB7esdb/preview"
+            },
+            {
+                "title": "BỆNH TRĨ",
+                "url": "https://drive.google.com/file/d/1Gnkwtw_yGMRZJwFrjegX-xXRnR8Wfj_X/preview"
+            },
+            {
+                "title": "BỆNH RÒ HẬU MÔN",
+                "url": "https://drive.google.com/file/d/1yNofmxuxsiNp2hF1YETL1CYf5WC-97iG/preview"
+            },
+            {
+                "title": "UNG THƯ GAN NGUYÊN PHÁT",
+                "url": "https://drive.google.com/file/d/1DiHl2KO9L7gc9waf8Q3QVAY9bje3Ho0E/preview"
+            },
+            {
+                "title": "DỊ TẬT HẬU MÔN TRỰC TRÀNG",
+                "url": "https://drive.google.com/file/d/12rIe0fY8z3YvyolmYB3xPaYtIjFajyyq/preview"
+            }
+        ]
+    },
+    {
+        "chapterName": "TIẾT NIỆU",
+        "gradient": "ebook-gradient-4",
+        "books": [
+            {
+                "title": "SỎI TIẾT NIỆU",
+                "url": "https://drive.google.com/file/d/1MCGBRhsmO7KtltJk2dS8jXgDTgkhjkON/preview"
+            },
+            {
+                "title": "CHẤN THƯƠNG THẬN",
+                "url": "https://drive.google.com/file/d/1LdxQOejQM479JDqYlYErkHhp952Yp8L8/preview"
+            },
+            {
+                "title": "CHẤN THƯƠNG NIỆU ĐẠO",
+                "url": "https://drive.google.com/file/d/1c6-NchOzgpABD3Te3pR8xrz8RvFVJ0qR/preview"
+            },
+            {
+                "title": "CHẤN THƯƠNG BÀNG QUANG",
+                "url": "https://drive.google.com/file/d/15moxGuDQgNQOIArfEnyQXvWyal7N_a0y/preview"
+            },
+            {
+                "title": "UNG THƯ THẬN",
+                "url": "https://drive.google.com/file/d/1lyBISad6ZjmEiZpkJjbBrD53HfmDz6h1/preview"
+            },
+            {
+                "title": "U BÀNG QUANG",
+                "url": "https://drive.google.com/file/d/15Ef3nM19Ar9giK8sV8AquWRp0FyvD8Hc/preview"
+            },
+            {
+                "title": "U PHÌ ĐẠI LÀNH TÍNH TUYẾN TIỀN LIỆT",
+                "url": "https://drive.google.com/file/d/1283213Cy-RBoi0fjW0QToXPGAN42Oz6M/preview"
+            }
+        ]
+    },
+    {
+        "chapterName": "NHI KHOA",
+        "gradient": "ebook-gradient-5",
+        "books": [
+            {
+                "title": "GÃY TRÊN LỒI CẦU XƯƠNG CÁNH TAY Ở TRẺ EM",
+                "url": "https://drive.google.com/file/d/18G9ZgCq0BNQ4BNH9Zgs2j9vpyAosmrUU/preview"
+            },
+            {
+                "title": "LỒNG RUỘT CẤP TÍNH Ở TRẺ CÒN BÚ",
+                "url": "https://drive.google.com/file/d/1w7BZV7vPFWyFXpcndu79yPMzkx_Lw1Iv/preview"
+            },
+            {
+                "title": "HỘI CHỨNG TẮC RUỘT SƠ SINH",
+                "url": "https://drive.google.com/file/d/12VNktcoPkWATFhDJPwBwCEKM2aBdgwQK/preview"
+            },
+            {
+                "title": "GIÃN ĐẠI TRÀNG BẨM SINH Ở TRẺ EM",
+                "url": "https://drive.google.com/file/d/1y3RP-13A9HvPiaY-lGxYkCKfgxwieahd/preview"
+            },
+            {
+                "title": "MỘT SỐ BỆNH LÝ BẸN BÌU SINH DỤC THƯỜNG GẶP Ở TRẺ EM",
+                "url": "https://drive.google.com/file/d/1yFUJVR819wR2LuOd5Q2FClaE5KFWcadB/preview"
+            }
+        ]
+    }
+];
+        
+        const ebookLibraryModal = document.getElementById('ebookLibrary');
+        const pdfViewerModal = document.getElementById('pdfViewer');
+        const ebookListEl = document.getElementById('ebookList');
+        const ebookSearchInput = document.getElementById('ebookSearchInput');
+
+        const catPatterns = {
+            "TDefault": ""
+        };
+
+        let isLibraryVideoLoaded = false;
+        function openEbookLibrary() {
+            ebookLibraryModal.classList.remove('pointer-events-none');
+            
+            requestAnimationFrame(() => {
+                ebookLibraryModal.classList.remove('translate-y-full');
+            });
+            
+            setTimeout(() => {
+                document.body.style.overflow = 'hidden'; 
+                if (ebookListEl.children.length === 0) {
+                    renderEbooks();
+                } else if (ebookSearchInput.value !== '') {
+                    ebookSearchInput.value = '';
+                    renderEbooks();
+                }
+            }, 350); 
+
+            if(!isLibraryVideoLoaded) {
+                setTimeout(() => {
+                    const vid = document.getElementById('libraryBgVideo');
+                    const src = document.getElementById('libraryBgSource');
+                    if(vid && src) {
+                        src.src = src.getAttribute('data-src');
+                        vid.load();
+                        vid.play().catch(e => console.log('Autoplay block', e));
+                        isLibraryVideoLoaded = true;
+                    }
+                }, 400);
+            }
+        }
+
+        function closeEbookLibrary() {
+            ebookLibraryModal.classList.add('translate-y-full');
+            ebookLibraryModal.classList.add('pointer-events-none');
+            document.body.style.overflow = 'auto'; 
+        }
+
+        function renderEbooks() {
+            const term = ebookSearchInput.value.toLowerCase();
+            let html = "";
+            let totalBooksVisible = 0;
+            
+            EBOOK_CHAPTERS.forEach((chapter, chapterIndex) => {
+                const filteredBooks = chapter.books.filter(book => !term || book.title.toLowerCase().includes(term));
+                if (filteredBooks.length === 0) return;
+                
+                const gradClass = chapter.gradient;
+                const patternStyle = catPatterns[chapter.chapterName] || catPatterns["TDefault"];
+                
+                html += `<div class="flex flex-col">`;
+                html += `<div class="flex items-center justify-between px-2 mb-2">
+                            <h3 class="font-heading font-black text-xl text-slate-800 dark:text-white uppercase tracking-wider pl-2 border-l-4 border-slate-800 dark:border-white leading-none">${chapter.chapterName}</h3>
+                            <span class="text-[10px] font-bold text-slate-500 dark:text-slate-400 bg-slate-200/50 dark:bg-slate-800/50 px-2.5 py-1 rounded-full border border-slate-300/50 dark:border-slate-700">${filteredBooks.length} Bài</span>
+                         </div>`;
+                         
+                html += `<div class="relative w-full">`;
+                html += `<div class="absolute bottom-[20px] left-2 right-2 h-1 bg-gradient-to-r from-transparent via-slate-300 dark:via-slate-600 to-transparent shadow-[0_5px_15px_rgba(225,29,72,0.3)] dark:shadow-[0_5px_15px_rgba(0,0,0,0.6)] z-0 rounded-full opacity-70"></div>`;
+                html += `<div class="flex gap-4 overflow-x-auto custom-scrollbar pb-8 pt-2 px-2 snap-x snap-mandatory scroll-smooth relative z-10" style="-webkit-overflow-scrolling: touch; contain: content;">`;
+                
+                filteredBooks.forEach((book, index) => {
+                    totalBooksVisible++;
+                    const bookTitleSafe = book.title.replace(/'/g, "\\'");
+                    html += `
+                    <div class="folder-card-wrapper cursor-pointer group w-[130px] flex-shrink-0 snap-start relative aspect-[1/1.4] folder-shadow transform-gpu" style="will-change: transform;" onclick="openBookDetail('${book.url}', '${bookTitleSafe}', '${chapter.chapterName}', '${gradClass}')">
+                        <div class="absolute inset-0 bg-white/5 dark:bg-slate-700/10 folder-mask backdrop-blur-md border border-white/10 translate-x-3 -translate-y-2 scale-95 opacity-50 z-0 transition-transform duration-300 group-hover:translate-x-4 group-hover:-translate-y-3"></div>
+                        <div class="absolute inset-0 bg-white/10 dark:bg-slate-600/20 folder-mask backdrop-blur-md border border-white/10 translate-x-1.5 -translate-y-1 scale-[0.98] opacity-80 z-0 transition-transform duration-300 group-hover:translate-x-2 group-hover:-translate-y-1.5"></div>
+                        <div class="absolute inset-0 folder-mask bg-white/10 dark:bg-black/20 backdrop-blur-md border border-white/20 shadow-[inset_0_1px_1px_rgba(255,255,255,0.4)] z-10 flex flex-col transition-transform duration-300 group-hover:-translate-y-1">
+                            <div class="h-[60%] w-full ${gradClass} relative flex flex-col p-2 pt-6">
+                                <div class="absolute inset-0 opacity-10 pointer-events-none" style="${patternStyle}"></div>
+                                <div class="absolute inset-0 z-20 pointer-events-none glare-element opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                                <div class="flex-1 flex items-center justify-center z-10">
+                                     <h4 class="text-white font-heading font-black text-[12px] leading-tight text-center text-balance" style="text-shadow: 0 2px 4px rgba(0,0,0,0.6); px-1">${book.title}</h4>
+                                </div>
+                            </div>
+                            <div class="h-[40%] w-full bg-transparent p-2.5 flex flex-col justify-end border-t border-black/5 dark:border-white/5">
+                                <span class="text-[9px] text-slate-400 dark:text-slate-500 font-bold mb-0.5 tracking-wider">Y HÀ NỘI</span>
+                                <div class="flex justify-between items-center text-[11px] text-slate-700 dark:text-slate-200 font-bold">
+                                    <span class="truncate pr-1">${chapter.chapterName}</span>
+                                    <i class="fas fa-chevron-down text-[8px] text-slate-400 dark:text-slate-500"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    `;
+                });
+                
+                html += `</div></div></div>`;
+            });
+            
+            if(totalBooksVisible === 0) {
+                html = `<div class="w-full py-16 text-center"><i class="fas fa-search-minus text-5xl text-slate-300 dark:text-slate-600 mb-4 drop-shadow"></i><p class="text-sm font-medium text-slate-500 mt-3">Thư viện chưa có cuốn sách này.</p></div>`;
+            }
+            ebookListEl.innerHTML = html;
+        }
+
+        let searchTimeout;
+        ebookSearchInput.addEventListener('input', () => {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => { renderEbooks(); }, 250);
+        });
+
+        let activePdfUrl = "";
+        let activePdfTitle = "";
+
+        function openBookDetail(url, title, category, gradClass) {
+            activePdfUrl = url;
+            activePdfTitle = title;
+            
+            const sheet = document.getElementById('bookDetailSheet');
+            const panel = document.getElementById('bookDetailPanel');
+            
+            document.getElementById('bdTitle').innerText = title;
+            document.getElementById('bdCoverTitle').innerText = title;
+            document.getElementById('bdCategory').innerText = category;
+            
+            const coverBgEl = document.getElementById('bdCoverBg');
+            coverBgEl.className = `h-[60%] w-full ${gradClass} relative flex flex-col p-2 pt-6`;
+            document.getElementById('bdCoverChap').innerText = category;
+            
+            const patternEl = document.getElementById('bdPattern');
+            patternEl.style = catPatterns[category] || catPatterns["TDefault"];
+            
+            sheet.classList.remove('hidden');
+            sheet.classList.add('flex');
+            
+            requestAnimationFrame(() => {
+                sheet.classList.remove('opacity-0');
+                setTimeout(() => { panel.classList.remove('translate-y-full'); }, 10);
+            });
+        }
+
+        function closeBookDetail() {
+            const sheet = document.getElementById('bookDetailSheet');
+            const panel = document.getElementById('bookDetailPanel');
+            
+            panel.classList.add('translate-y-full');
+            setTimeout(() => {
+                sheet.classList.add('opacity-0');
+                setTimeout(() => {
+                    sheet.classList.remove('flex');
+                    sheet.classList.add('hidden');
+                }, 300);
+            }, 250); 
+        }
+
+        document.getElementById('btnReadNow').addEventListener('click', () => {
+            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+            const isMobile = window.innerWidth < 768 || isIOS;
+            
+            if (typeof gtag === 'function') {
+                try {
+                    gtag('event', 'open_book', {
+                        'event_category': 'Medical Ebook',
+                        'event_label': activePdfTitle,
+                        'book_url': activePdfUrl,
+                        'transport_type': 'beacon'
+                    });
+                } catch(e) {}
+            }
+
+            if (isMobile) {
+                window.open(activePdfUrl, '_blank');
+                closeBookDetail(); 
+            } else {
+                closeBookDetail();
+                setTimeout(() => { openPdfViewer(activePdfUrl, activePdfTitle); }, 300);
+            }
+        });
+
+        function openPdfViewer(url, title) {
+            const iframe = document.getElementById('pdfIframe');
+            const loader = document.getElementById('pdfLoader');
+            
+            document.getElementById('pdfTitle').innerText = title;
+            document.getElementById('pdfExternalLink').href = url;
+            
+            iframe.src = "about:blank"; 
+            if(loader) { 
+                loader.style.display = 'flex'; 
+                loader.style.opacity = '1'; 
+            }
+            
+            pdfViewerModal.classList.remove('hidden');
+            pdfViewerModal.classList.add('flex');
+            
+            requestAnimationFrame(() => {
+                requestAnimationFrame(() => {
+                    pdfViewerModal.classList.remove('opacity-0', 'translate-y-full');
+                });
+            });
+            
+            setTimeout(() => { iframe.src = url; }, 300);
+            
+            iframe.onload = () => {
+                if(iframe.src !== "about:blank" && iframe.src !== window.location.href && loader) {
+                    loader.style.opacity = '0';
+                    setTimeout(() => { loader.style.display = 'none'; }, 300);
+                }
+            };
+        }
+
+        function closePdfViewer() {
+            pdfViewerModal.classList.add('opacity-0', 'translate-y-full');
+            document.getElementById('pdfIframe').src = "about:blank";
+            setTimeout(() => {
+                pdfViewerModal.classList.remove('flex');
+                pdfViewerModal.classList.add('hidden');
+            }, 300);
+        }
+
+        let _isDown = false;
+        let _startX;
+        let _scrollLeft;
+        let _dragTarget = null;
+        let _hasDragged = false;
+
+        document.addEventListener('mousedown', (e) => {
+            const container = e.target.closest('.overflow-x-auto');
+            if(!container) return;
+            _isDown = true;
+            _dragTarget = container;
+            _hasDragged = false;
+            _startX = e.pageX - _dragTarget.offsetLeft;
+            _scrollLeft = _dragTarget.scrollLeft;
+            _dragTarget.style.scrollBehavior = 'auto'; 
+            _dragTarget.style.scrollSnapType = 'none'; 
+            _dragTarget.style.cursor = 'grabbing';
+        });
+
+        document.addEventListener('mouseleave', () => { if(_isDown) _resetDrag(); });
+        document.addEventListener('mouseup', () => { if(_isDown) _resetDrag(); });
+
+        document.addEventListener('mousemove', (e) => {
+            if(!_isDown || !_dragTarget) return;
+            const x = e.pageX - _dragTarget.offsetLeft;
+            const walk = (x - _startX); 
+            if(Math.abs(walk) > 5) { _hasDragged = true; }
+            if(_hasDragged) {
+                e.preventDefault();
+                _dragTarget.scrollLeft = _scrollLeft - walk;
+            }
+        });
+
+        function _resetDrag() {
+            _isDown = false;
+            if(_dragTarget) {
+                _dragTarget.style.scrollBehavior = '';
+                _dragTarget.style.scrollSnapType = '';
+                _dragTarget.style.cursor = '';
+                _dragTarget = null;
+            }
+            setTimeout(() => { _hasDragged = false; }, 50); 
+        }
+
+        document.addEventListener('click', (e) => {
+            if(_hasDragged) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+        }, true);
+</script>
 
     <!-- Notification Sidebar -->
     <div id="notifSidebarOverlay" onclick="toggleNotificationSidebar()" class="fixed inset-0 bg-black/40 z-[110] opacity-0 pointer-events-none transition-opacity duration-300 backdrop-blur-sm hidden"></div>
