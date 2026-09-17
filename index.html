@@ -139,6 +139,7 @@
                 .then(data => {
                     if (data.status === "approved" || data.status === "ok") {
                         localStorage.setItem('TDC_APPROVED_NGOAIKHOA', 'true');
+                        if ('serviceWorker' in navigator) { navigator.serviceWorker.register('./sw.js'); }
                         lockScreen.style.opacity = '0';
                         setTimeout(() => { lockScreen.style.display = 'none'; document.body.style.overflow = 'auto'; }, 500);
                     } else {
@@ -645,7 +646,11 @@
         window.addEventListener('focus', () => { updateStats(); renderCases(); silentVerify(); });
 
         if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js').then(r => console.log('SW V8 ready')).catch(e => console.error(e)));
+            window.addEventListener('load', () => {
+                if (localStorage.getItem('TDC_APPROVED_NGOAIKHOA') === 'true') {
+                    navigator.serviceWorker.register('./sw.js').catch(err => console.error(err));
+                }
+            });
         }
     
         // NETWORK STATUS LISTENER
