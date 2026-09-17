@@ -1,6 +1,11 @@
 <!DOCTYPE html>
 <html lang="vi" class="light">
 <head>
+<link rel="preconnect" href="https://cdn.tailwindcss.com">
+<link rel="preconnect" href="https://cdnjs.cloudflare.com">
+<link rel="preconnect" href="https://unpkg.com">
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>CASE TEST NGOẠI KHOA</title>
@@ -118,11 +123,19 @@
             const lockContainer = document.getElementById('lock-container');
             const lockScreen = document.getElementById('lock-screen');
             if(!statusText) return;
-            statusText.innerText = "Đang mã hóa tín hiệu Server...";
-            lockContainer.classList.add('hidden');
+            const verifyBtn = document.getElementById('verifyBtn');
+            
+            statusText.innerText = "Đang kiểm tra trên Server, vui lòng đợi trong giây lát...";
+            document.getElementById('lock-device-code').value = deviceId;
+            lockContainer.classList.remove('hidden');
+            
+            if (verifyBtn) {
+                verifyBtn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Đang xử lý...';
+                verifyBtn.disabled = true;
+                verifyBtn.classList.add('opacity-70', 'cursor-not-allowed');
+            }
 
-            fetch(AUTH_API + "?id=" + deviceId)
-                .then(r => r.json())
+            fetch(AUTH_API + "?id=" + deviceId + "&t=" + new Date().getTime(), { cache: "no-store" }).then(r => r.json())
                 .then(data => {
                     if (data.status === "approved" || data.status === "ok") {
                         localStorage.setItem('TDC_APPROVED_NGOAIKHOA', 'true');
@@ -137,12 +150,19 @@
                 .catch(e => {
                     statusText.innerHTML = "Offline.<br>Yêu cầu mạng di động/WiFi để xác thực khóa.";
                     lockContainer.classList.remove('hidden');
+                })
+                .finally(() => {
+                    if (verifyBtn) {
+                        verifyBtn.innerHTML = '<i class="fas fa-sync-alt group-hover:rotate-180 transition-transform duration-500"></i> Xác minh';
+                        verifyBtn.disabled = false;
+                        verifyBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+                    }
                 });
         }
 
         function silentVerify() {
             if(navigator.onLine && localStorage.getItem('TDC_APPROVED_NGOAIKHOA') === 'true') {
-                fetch(AUTH_API + "?id=" + deviceId).then(r => r.json()).then(data => {
+                fetch(AUTH_API + "?id=" + deviceId + "&t=" + new Date().getTime(), { cache: "no-store" }).then(r => r.json()).then(data => {
                     if(data.status === "locked" || data.status === "error") {
                         localStorage.setItem('TDC_APPROVED_NGOAIKHOA', 'false'); window.location.reload();
                     }
@@ -213,9 +233,9 @@
                 <div class="absolute inset-0 w-1/4 bg-white/5 -skew-x-12 -translate-x-full group-hover:animate-[shimmer_1.5s_infinite]"></div>
                 <i class="fas fa-paste text-xl text-blue-400"></i> <span class="tracking-wide">SAO CHÉP MÃ THIẾT BỊ</span>
             </button>
-            <button onclick="verifyWithServer()" class="w-full bg-transparent hover:bg-blue-900/20 text-blue-500 hover:text-blue-400 font-bold py-3 px-4 border border-blue-900/30 hover:border-blue-500/40 rounded-xl transition-all flex items-center justify-center gap-2 group">
-                <i class="fas fa-sync-alt group-hover:rotate-180 transition-transform duration-500"></i> Xác minh
-            </button>
+            <button id="verifyBtn" onclick="verifyWithServer()" class="w-full bg-transparent hover:bg-blue-900/20 text-blue-500 hover:text-blue-400 font-bold py-3 px-4 border border-blue-900/30 hover:border-blue-500/40 rounded-xl transition-all flex items-center justify-center gap-2 group">
+                    <i class="fas fa-sync-alt group-hover:rotate-180 transition-transform duration-500"></i> Xác minh
+                </button>
         </div>
         
     </div>
